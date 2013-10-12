@@ -13,13 +13,16 @@ public:
 	~I2CDevice();
 
 protected:
-    void WriteToRegister(unsigned char address, unsigned char mask, unsigned char value);
-    unsigned char ReadFromRegister(unsigned char address, unsigned char mask);
+    void WriteToRegister(unsigned char address, unsigned char value);
+    void WriteToRegisterWithMask(unsigned char address, unsigned char mask, unsigned char value);
+    unsigned char ReadFromRegister(unsigned char address);
+    unsigned char ReadFromRegisterWithMask(unsigned char address, unsigned char mask);
 	
 private:
     int _handle;
     unsigned char _address;
     char _deviceFile;
+
 };
 
 #endif
