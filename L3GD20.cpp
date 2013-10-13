@@ -1,9 +1,17 @@
 #include "L3GD20.h"
+#include "bitops.h"
+#include <algorithm>
+#include <numeric>
+#include <time.h>
+#include <sys/time.h>
 
 L3GD20::L3GD20(const unsigned char address, const char *deviceFile)
  : I2CDevice(address, deviceFile)
 {
-
+    gain = 1;
+    maxX = 0; meanX = 0; minX = 0;
+    maxY = 0; meanY = 0; minY = 0;
+    maxZ = 0; meanZ = 0; minZ = 0;
 }
 
 L3GD20::~L3GD20()
@@ -11,9 +19,179 @@ L3GD20::~L3GD20()
 
 }
 
+void L3GD20::Init()
+{
+    FullScaleDps scale = Get_FullScale(false);
+    switch(scale)
+    {
+        case FullScaleDps::TwoHundredFifty:
+            gain = 0.0085;
+            break;
+        case FullScaleDps::FiveHundred:
+            gain = 0.0175;
+            break;
+        case FullScaleDps::TwoThousand:
+            gain = 0.07;
+            break;
+    }
+}
+
 unsigned char L3GD20::Get_DeviceId()
 {
     return ReadFromRegister(_REG_R_WHO_AM_I);
+}
+
+void L3GD20::Calibrate(bool print)
+{
+    CalibrateX(print);
+    CalibrateY(print);
+    CalibrateZ(print);
+}
+
+void L3GD20::CalibrateX(bool print)
+{
+    if(print) { std::cout << "\r\nCalibrating axis X, please do not move sensor...\r\n"; };
+
+    int buff[20];
+    for(int i = 0; i < 20; i ++)
+    {
+        while(!Get_DataAvailableX()) { usleep(1000); }
+        buff[i] = Get_RawOutX();
+    }
+    minX = *std::min_element(buff, buff + 20);
+    if(print) { std::cout << "Min x: " << minX; };
+    maxX = *std::max_element(buff, buff + 20);
+    if(print) { std::cout << "Max x: " << maxX; };
+    meanX = std::accumulate(buff, buff+20,0)/20;
+    if(print) { std::cout << "Mean x: " << meanX; };
+}
+
+void L3GD20::CalibrateY(bool print)
+{
+    if(print) { std::cout << "\r\nCalibrating axis Y, please do not move sensor...\r\n"; };
+
+    int buff[20];
+    for(int i = 0; i < 20; i ++)
+    {
+        while(!Get_DataAvailableY()) { usleep(1000); }
+        buff[i] = Get_RawOutY();
+    }
+    minY = *std::min_element(buff, buff + 20);
+    if(print) { std::cout << "Min y: " << minY; };
+    maxY = *std::max_element(buff, buff + 20);
+    if(print) { std::cout << "Max y: " << maxY; };
+    meanY = std::accumulate(buff, buff+20,0)/20;
+    if(print) { std::cout << "Mean y: " << meanY; };
+}
+
+void L3GD20::CalibrateZ(bool print)
+{
+    if(print) { std::cout << "\r\nCalibrating axis Z, please do not move sensor...\r\n"; };
+
+    int buff[20];
+    for(int i = 0; i < 20; i ++)
+    {
+        while(!Get_DataAvailableZ()) { usleep(1000); }
+        buff[i] = Get_RawOutZ();
+    }
+    minZ = *std::min_element(buff, buff + 20);
+    if(print) { std::cout << "Min z: " << minZ; };
+    maxZ = *std::max_element(buff, buff + 20);
+    if(print) { std::cout << "Max z: " << maxZ; };
+    meanZ = std::accumulate(buff, buff+20,0)/20;
+    if(print) { std::cout << "Mean z: " << meanZ; };
+}
+
+int L3GD20::Get_RawOutX()
+{
+    unsigned char l = ReadFromRegister(_REG_R_OUT_X_L);
+    unsigned char h = ReadFromRegister(_REG_R_OUT_X_H);
+    return (short)(h << 8 | l);
+}
+
+int L3GD20::Get_RawOutY()
+{
+    unsigned char l = ReadFromRegister(_REG_R_OUT_Y_L);
+    unsigned char h = ReadFromRegister(_REG_R_OUT_Y_H);
+    return (short)((h << 8) | l);
+}
+
+int L3GD20::Get_RawOutZ()
+{
+    unsigned char l = ReadFromRegister(_REG_R_OUT_Z_L);
+    unsigned char h = ReadFromRegister(_REG_R_OUT_Z_H);
+    return (short)((h << 8) | l);
+}
+
+double L3GD20::Get_CalOutX()
+{
+    return (Get_RawOutX() - meanX) * gain;
+}
+
+double L3GD20::Get_CalOutY()
+{
+    return (Get_RawOutY() - meanY) * gain;
+}
+
+double L3GD20::Get_CalOutZ()
+{
+    return (Get_RawOutZ() - meanZ) * gain;
+}
+
+bool L3GD20::Get_DataAvailableX()
+{
+    return ReadFromRegisterWithMask(_REG_R_STATUS_REG, _MASK_STATUS_REG_ZYXDA) == 1
+        && ReadFromRegisterWithMask(_REG_R_STATUS_REG, _MASK_STATUS_REG_XDA) == 1;
+}
+
+bool L3GD20::Get_DataAvailableY()
+{
+    return ReadFromRegisterWithMask(_REG_R_STATUS_REG, _MASK_STATUS_REG_ZYXDA) == 1
+        && ReadFromRegisterWithMask(_REG_R_STATUS_REG, _MASK_STATUS_REG_YDA) == 1;
+}
+
+bool L3GD20::Get_DataAvailableZ()
+{
+    return ReadFromRegisterWithMask(_REG_R_STATUS_REG, _MASK_STATUS_REG_ZYXDA) == 1
+        && ReadFromRegisterWithMask(_REG_R_STATUS_REG, _MASK_STATUS_REG_ZDA) == 1;
+}
+
+void L3GD20::PrintConfig()
+{
+    // Device Id
+    std::cout << "DeviceId: ";
+    printBinary(Get_DeviceId());
+    std::cout << "\r\n";
+
+    // Power mode
+    std::cout << "Power mode: ";
+    Get_PowerMode(true);
+    std::cout << "\r\n";
+
+    // Full scale
+    std::cout << "Full scale: ";
+    Get_FullScale(true);
+    std::cout << "\r\n";
+
+    // Axis enabled
+    Get_AxisEnbaled(L3GD20::Axis::X, true);
+    std::cout << "\r\n";
+    Get_AxisEnbaled(L3GD20::Axis::Y, true);
+    std::cout << "\r\n";
+    Get_AxisEnbaled(L3GD20::Axis::Z, true);
+    std::cout << "\r\n";
+
+    // Band width and data rate
+    std::cout << "Band width: ";
+    std::cout << Get_BandWidth();
+    std::cout << "\r\n";
+    std::cout << "Data rate: ";
+    std::cout << Get_DataRate();
+    std::cout << "\r\n";
+
+    std::cout << "Frequency cut off: ";
+    std::cout << Get_HighPassFrequencyCutOff();
+    std::cout << "\r\n";
 }
 
 void L3GD20::Set_PowerMode(PowerMode mode)
@@ -302,10 +480,6 @@ void L3GD20::Set_HighPassFrequencyCutOff(float freq)
         throw posix_error("Unknown values configuration.");
     }
 }
-
-
-
-
 
 
 

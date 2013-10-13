@@ -17,7 +17,7 @@ protected:
     void WriteToRegisterWithMask(unsigned char address, unsigned char mask, unsigned char value);
     unsigned char ReadFromRegister(unsigned char address);
     unsigned char ReadFromRegisterWithMask(unsigned char address, unsigned char mask);
-	
+
 private:
     int _handle;
     unsigned char _address;

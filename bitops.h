@@ -85,7 +85,13 @@ static inline unsigned char getValueUnderMask(unsigned char currentValue, unsign
 
 }
 		
-// Pronts binary representation to standard output
+static inline int TwosComplementToByte(unsigned char value)
+{
+    if (value >= 0 && value <= 127) { return value; }
+    else { return value - 256; }
+}
+
+// Prints binary representation to standard output
 static inline void printBinary(const unsigned char value)
 {
 	for(int i = 7; i>=0;i--)

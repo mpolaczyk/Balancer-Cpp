@@ -9,7 +9,9 @@ class L3GD20 : public I2CDevice
 public:
     L3GD20(const unsigned char address, const char * deviceFile);
     ~L3GD20();
+    void Init();
     unsigned char Get_DeviceId();
+    void PrintConfig();
 
     enum PowerMode { PowerDown = 0, Sleep = 1, Normal = 2 };
     void Set_PowerMode(PowerMode mode);
@@ -30,7 +32,34 @@ public:
     void Set_HighPassFrequencyCutOff(float freq);
     float Get_HighPassFrequencyCutOff();
 
+    void Calibrate(bool print);
+    void CalibrateX(bool print);
+    void CalibrateY(bool print);
+    void CalibrateZ(bool print);
+
+    int Get_RawOutX();
+    int Get_RawOutY();
+    int Get_RawOutZ();
+    double Get_CalOutX();
+    double Get_CalOutY();
+    double Get_CalOutZ();
+
+    bool Get_DataAvailableX();
+    bool Get_DataAvailableY();
+    bool Get_DataAvailableZ();
+
 private:
+    float gain;
+    int maxX;
+    int meanX;
+    int minX;
+    int maxY;
+    int meanY;
+    int minY;
+    int maxZ;
+    int meanZ;
+    int minZ;
+
     static const unsigned char _REG_R_WHO_AM_I            = 0x0f;      // Device identification register
     static const unsigned char _REG_RW_CTRL_REG1          = 0x20;      // Control register 1
     static const unsigned char _REG_RW_CTRL_REG2          = 0x21;      // Control register 2
