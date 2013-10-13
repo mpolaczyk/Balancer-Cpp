@@ -9,7 +9,26 @@ class L3GD20 : public I2CDevice
 public:
     L3GD20(const unsigned char address, const char * deviceFile);
     ~L3GD20();
-    unsigned char Get_DeviceId_Value();
+    unsigned char Get_DeviceId();
+
+    enum PowerMode { PowerDown = 0, Sleep = 1, Normal = 2 };
+    void Set_PowerMode(PowerMode mode);
+    PowerMode Get_PowerMode(bool print);
+
+    enum FullScaleDps { TwoHundredFifty = 0, FiveHundred = 1, TwoThousand = 2 };
+    void Set_FullScale(FullScaleDps value);
+    FullScaleDps Get_FullScale(bool print);
+
+    enum Axis { X = 1, Y = 2, Z = 4 };
+    void Set_AxisEnabled(Axis axis, bool value);
+    bool Get_AxisEnbaled(Axis axis, bool print);
+
+    int Get_DataRate();
+    float Get_BandWidth();
+    void Set_DataRateAndBandWidth(int dataRate, float bandWidth);
+
+    void Set_HighPassFrequencyCutOff(float freq);
+    float Get_HighPassFrequencyCutOff();
 
 private:
     static const unsigned char _REG_R_WHO_AM_I            = 0x0f;      // Device identification register

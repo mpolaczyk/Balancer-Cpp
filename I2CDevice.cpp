@@ -83,3 +83,6 @@ unsigned char I2CDevice::ReadFromRegisterWithMask(unsigned char address, unsigne
     // Return value under mask
     return getValueUnderMask(static_cast<unsigned char>(value), mask);
 }
+
+
+	
