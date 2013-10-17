@@ -23,7 +23,7 @@ public:
 
     enum Axis { X = 1, Y = 2, Z = 4 };
     void Set_AxisEnabled(Axis axis, bool value);
-    bool Get_AxisEnbaled(Axis axis, bool print);
+    bool Get_AxisEnabled(Axis axis, bool print);
 
     int Get_DataRate();
     float Get_BandWidth();

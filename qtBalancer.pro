@@ -5,11 +5,13 @@ QMAKE_CXXFLAGS += -std=c++0x
 
 SOURCES += main.cpp \
     I2CDevice.cpp \
-    L3GD20.cpp
+    L3GD20.cpp \
+    LSM303DLHC.cpp
 
 HEADERS += \
     bitops.h \
     I2CDevice.h \
     exceptions.h \
-    L3GD20.h
+    L3GD20.h \
+    LSM303DLHC.h
 

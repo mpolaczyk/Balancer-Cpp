@@ -174,11 +174,11 @@ void L3GD20::PrintConfig()
     std::cout << "\r\n";
 
     // Axis enabled
-    Get_AxisEnbaled(L3GD20::Axis::X, true);
+    Get_AxisEnabled(L3GD20::Axis::X, true);
     std::cout << "\r\n";
-    Get_AxisEnbaled(L3GD20::Axis::Y, true);
+    Get_AxisEnabled(L3GD20::Axis::Y, true);
     std::cout << "\r\n";
-    Get_AxisEnbaled(L3GD20::Axis::Z, true);
+    Get_AxisEnabled(L3GD20::Axis::Z, true);
     std::cout << "\r\n";
 
     // Band width and data rate
@@ -282,9 +282,9 @@ void L3GD20::Set_AxisEnabled(Axis axis, bool value)
     }
 }
 
-bool L3GD20::Get_AxisEnbaled(Axis axis, bool print)
+bool L3GD20::Get_AxisEnabled(Axis axis, bool print)
 {
-    bool ans;
+    bool ans = false;
     switch(axis)
     {
         case Axis::X:
@@ -300,6 +300,7 @@ bool L3GD20::Get_AxisEnbaled(Axis axis, bool print)
             if(print) { std::cout << "Axis Z: " << (ans ? "Enabled" : "Disabled"); };
             break;
     }
+    return ans;
 }
 
 int L3GD20::Get_DataRate()
