@@ -12,6 +12,10 @@ public:
     void Init();
     void PrintConfig();
 
+    double Get_CalOutX();
+    double Get_CalOutY();
+    double Get_CalOutZ();
+
     int Get_RawOutX();
     int Get_RawOutY();
     int Get_RawOutZ();
@@ -19,6 +23,9 @@ public:
     bool Get_DataAvailableX();
     bool Get_DataAvailableY();
     bool Get_DataAvailableZ();
+
+    long Get_DataRate();
+    void Set_DataRate(long value);
 
     enum PowerMode { Normal = 0, LowPower = 1 };
     void Set_PowerMode(PowerMode mode);
@@ -33,6 +40,7 @@ public:
     FullScaleN Get_FullScale(bool print);
 
 private:
+    double gain;
 
     static const unsigned char _REG_RW_CTRL_REG1_A            = 0x20;      // Control register 1
     static const unsigned char _REG_RW_CTRL_REG4_A            = 0x23;      // Control register 4
@@ -48,7 +56,7 @@ private:
 
     static const unsigned char _MASK_CTRL_REG1_A_ODR          = 0xf0;      // Data rate selection
     static const unsigned char _MASK_CTRL_REG1_A_LPen         = 0x08;      // Low power mode enable
-    static const unsigned char _MASK_CTRL_REG1_A_Zen          = 0x03;      // Z axis enabled
+    static const unsigned char _MASK_CTRL_REG1_A_Zen          = 0x04;      // Z axis enabled
     static const unsigned char _MASK_CTRL_REG1_A_Yen          = 0x02;      // Y axis enabled
     static const unsigned char _MASK_CTRL_REG1_A_Xen          = 0x01;      // X axis enabled
     static const unsigned char _MASK_CTRL_REG4_A_FS           = 0x30;      // Full scale selection +/-[g]

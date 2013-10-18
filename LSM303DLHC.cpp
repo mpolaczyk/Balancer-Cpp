@@ -14,25 +14,37 @@ LSM303DLHC::~LSM303DLHC()
 
 void LSM303DLHC::Init()
 {
-
+    FullScaleN scale = Get_FullScale(false);
+    switch(scale)
+    {
+        case FullScaleN::TwoG:
+            gain = 4*9.81/65536;
+            break;
+        case FullScaleN::FourG:
+            gain = 8*9.81/65536;
+            break;
+        case FullScaleN::EightG:
+            gain = 16*9.81/65536;
+            break;
+        case FullScaleN::SixteenG:
+            gain = 32*9.81/65536;
+            break;
+    }
 }
 
 void LSM303DLHC::PrintConfig()
 {
     // Axis enabled
-    std::cout << "Axis X enabled: ";
     Get_AxisEnabled(LSM303DLHC::Axis::X, true);
     std::cout << "\r\n";
-    std::cout << "Axis Y enabled: ";
     Get_AxisEnabled(LSM303DLHC::Axis::Y, true);
     std::cout << "\r\n";
-    std::cout << "Axis Z enabled: ";
     Get_AxisEnabled(LSM303DLHC::Axis::Z, true);
     std::cout << "\r\n";
 
     // Full scale
     std::cout << "Full scale +/-G[N]: ";
-    printBinary(Get_FullScale(true));
+    Get_FullScale(true);
     std::cout << "\r\n";
 
     // Power mode
@@ -40,6 +52,25 @@ void LSM303DLHC::PrintConfig()
     Get_PowerMode(true);
     std::cout << "\r\n";
 
+    // Data rate
+    std::cout << "Data rate: ";
+    std::cout << Get_DataRate();
+    std::cout << "\r\n";
+}
+
+double LSM303DLHC::Get_CalOutX()
+{
+    return Get_RawOutX() * gain;
+}
+
+double LSM303DLHC::Get_CalOutY()
+{
+    return Get_RawOutY() * gain;
+}
+
+double LSM303DLHC::Get_CalOutZ()
+{
+    return Get_RawOutZ() * gain;
 }
 
 int LSM303DLHC::Get_RawOutX()
@@ -61,6 +92,50 @@ int LSM303DLHC::Get_RawOutZ()
     unsigned char l = ReadFromRegister(_REG_R_OUT_Z_L_A);
     unsigned char h = ReadFromRegister(_REG_R_OUT_Z_H_A);
     return (short)((h << 8) | l);
+}
+
+long LSM303DLHC::Get_DataRate()
+{
+    unsigned char value = ReadFromRegisterWithMask(_REG_RW_CTRL_REG1_A, _MASK_CTRL_REG1_A_ODR);
+    PowerMode powerMode = Get_PowerMode(false);
+
+    if (value == 1) { return 1; }
+    else if (value == 2) { return 10; }
+    else if (value == 3) { return 25; }
+    else if (value == 4) { return 50; }
+    else if (value == 5) { return 100; }
+    else if (value == 6) { return 200; }
+    else if (value == 7) { return 400; }
+    else if (value == 8 && powerMode == PowerMode::LowPower) { return 1620000; }
+    else if (value == 9 && powerMode == PowerMode::Normal) { return 1344000; }
+    else if (value == 9 && powerMode == PowerMode::LowPower) { return 5376000; }
+    else return 0;
+}
+
+void LSM303DLHC::Set_DataRate(long value)
+{
+    PowerMode powerMode = Get_PowerMode(false);
+    unsigned char reg = 0;
+
+    if (value == 1) { reg = 1; }
+    else if (value == 10) { reg = 2; }
+    else if (value == 25) { reg = 3; }
+    else if (value == 50) { reg = 4; }
+    else if (value == 100) { reg = 5; }
+    else if (value == 200) { reg = 6; }
+    else if (value == 400) { reg = 7; }
+    else if (value == 1620000 && powerMode == PowerMode::LowPower) { reg = 8; }
+    else if (value == 1344000 && powerMode == PowerMode::Normal) { reg = 9; }
+    else if (value == 5376000 && powerMode == PowerMode::LowPower) { reg = 9; }
+
+    if(reg != 0)
+    {
+        WriteToRegisterWithMask(_REG_RW_CTRL_REG1_A, _MASK_CTRL_REG1_A_ODR, reg);
+    }
+    else
+    {
+        throw posix_error("Unknown configration, check power mode.");
+    }
 }
 
 void LSM303DLHC::Set_PowerMode(LSM303DLHC::PowerMode mode)

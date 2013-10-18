@@ -49,7 +49,7 @@ public:
     bool Get_DataAvailableZ();
 
 private:
-    float gain;
+    double gain;
     int maxX;
     int meanX;
     int minX;
