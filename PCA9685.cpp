@@ -16,45 +16,27 @@ PCA9685::~PCA9685()
 
 }
 
-void PCA9685::Init()
+void PCA9685::InitPwm()
 {
+    ConfigurePwm(40, 1000, 4095, 15);
     WriteToRegister(_REG_RW_MODE, 0x00); // Reset
 }
 
-void PCA9685::PrintConfig()
+void PCA9685::ConfigurePwm(unsigned short minFreq, unsigned short maxFreq, unsigned short maxValue, unsigned char maxChannel)
 {
-    cout << endl << "Mode: ";
-    printBinary(ReadFromRegister(_REG_RW_MODE));
-
-    cout << endl << "Prescaler: ";
-    printBinary(ReadFromRegister(_REG_RW_PRESCALER));
-
-    cout << endl << "On L: ";
-    printBinary(ReadFromRegister(_REG_RW_CH0_L_ON));
-    cout << endl << "On H: ";
-    printBinary(ReadFromRegister(_REG_RW_CH0_H_ON));
-    cout << endl << "Off L: ";
-    printBinary(ReadFromRegister(_REG_RW_CH0_L_OFF));
-    cout << endl << "Off H: ";
-    printBinary(ReadFromRegister(_REG_RW_CH0_H_OFF));
-
+    _minFreq = minFreq;
+    _maxFreq = maxFreq;
+    _maxValue = maxValue;
+    _maxChannel = maxChannel;
 }
 
-void PCA9685::SetPWMFreq(unsigned short freq)
+void PCA9685::SetPwmFreq(unsigned short freq)
 {
+    if (freq < _minFreq) { throw posix_error("Frequency cannot be less than minimum value."); }
+    if (freq > _maxFreq) { throw posix_error("Frequency cannot be greater than maximum value."); }
+
     char prescale = static_cast<char>(floor(25000000 / 4096 / freq -1 + 0.5));
-    cout << "Prescale: ";
-    printBinary(prescale);
-    cout << endl;
-
     unsigned char oldMode = ReadFromRegister(_REG_RW_MODE);
-    cout << "old mode: ";
-    printBinary(oldMode);
-    cout << endl;
-
-    cout << "Sleep: ";
-    printBinary((oldMode & 0x7f) | 0x10);
-    cout << endl;
 
     WriteToRegister(_REG_RW_MODE, (oldMode & 0x7f) | 0x10); // Sleep
     WriteToRegister(_REG_RW_PRESCALER, prescale);
@@ -62,20 +44,20 @@ void PCA9685::SetPWMFreq(unsigned short freq)
 
     usleep(0.005 * 1000000); // 0.5 ms
 
-    cout << "New mode: ";
-    printBinary(oldMode | 0x80);
-    cout << endl;
     WriteToRegister(_REG_RW_MODE, oldMode | 0x80);
 }
 
-void PCA9685::SetPWM(unsigned char channel, unsigned short on, unsigned short off)
+void PCA9685::SetPwm(unsigned char channel, unsigned char fillFactor)
 {
-    if (channel > 15) { throw posix_error("Channel must be between 0 and 15."); }
-    if (on > 4095) { throw posix_error("On must be between 0 and 4096."); }
-    if (off > 4095) { throw posix_error("Off must be between 0 and 4096."); }
+    if (channel > _maxChannel) { throw posix_error("Channel canot be greater than maximum value."); }
+    if (fillFactor > 100) { throw posix_error("Fill factor [%] must be <= 100 and >= 0."); }
 
-    WriteToRegister(_REG_RW_CH0_L_ON + 4 * channel, on & 0xff);
-    WriteToRegister(_REG_RW_CH0_H_ON + 4 * channel, on >> 8);
-    WriteToRegister(_REG_RW_CH0_L_OFF + 4 * channel, off & 0xff);
-    WriteToRegister(_REG_RW_CH0_H_OFF + 4 * channel, off >> 8);
+    unsigned short value = static_cast<unsigned short>(((double)_maxValue / 100) * (double)fillFactor);
+
+    std::cout << value << endl << flush;
+
+    WriteToRegister(_REG_RW_CH0_L_ON + 4 * channel, 0);
+    WriteToRegister(_REG_RW_CH0_H_ON + 4 * channel, 0);
+    WriteToRegister(_REG_RW_CH0_L_OFF + 4 * channel, value & 0xff);
+    WriteToRegister(_REG_RW_CH0_H_OFF + 4 * channel, value >> 8);
 }

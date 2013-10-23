@@ -7,7 +7,8 @@ SOURCES += main.cpp \
     I2CDevice.cpp \
     L3GD20.cpp \
     LSM303DLHC.cpp \
-    PCA9685.cpp
+    PCA9685.cpp \
+    Engine.cpp
 
 HEADERS += \
     bitops.h \
@@ -15,5 +16,7 @@ HEADERS += \
     exceptions.h \
     L3GD20.h \
     LSM303DLHC.h \
-    PCA9685.h
+    PCA9685.h \
+    Engine.h \
+    IPwmController.h
 

@@ -3,7 +3,7 @@
 
 #include "I2CDevice.h"
 
-class LSM303DLHC : public I2CDevice
+class LSM303DLHC : protected I2CDevice
 {
 
 public:

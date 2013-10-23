@@ -23,52 +23,36 @@ int getTime()
 void PWMDemo()
 {
     PCA9685 *pwm = new PCA9685(0x40, "/dev/i2c-1");
-    pwm->Init();
-
-
-    pwm->PrintConfig();
-    cout << endl;
-    cout << endl;
-
-    pwm->SetPWMFreq(1000);
-    cout << endl;
-    cout << endl;
-
-    pwm->PrintConfig();
-    cout << endl;
-    cout << endl;
+    pwm->InitPwm();
+    pwm->SetPwmFreq(1000);
 
     double A = 360 * DEG_TO_RAD;
     double da = 1 * DEG_TO_RAD;
     double v = 0;
-    double vv = 0;
 
     while(1)
     {
         for(double a = 0; a < A; a += da)
         {
-            v = sin(a);
-            vv = v * 4095;
+            v = 100*sin(a);
             if(v>0)
             {
-                pwm->SetPWM(15, 0, static_cast<unsigned short>(vv));
-                pwm->SetPWM(14, 0, 0);
-                pwm->SetPWM(13, 0, static_cast<unsigned short>(vv));
-                pwm->SetPWM(12, 0, 0);
+                pwm->SetPwm(15, static_cast<unsigned short>(v));
+                pwm->SetPwm(14, 0);
+                pwm->SetPwm(13, static_cast<unsigned short>(v));
+                pwm->SetPwm(12, 0);
             }
             else
             {
-                pwm->SetPWM(15, 0, 0);
-                pwm->SetPWM(14, 0, static_cast<unsigned short>(-vv));
-                pwm->SetPWM(13, 0, 0);
-                pwm->SetPWM(12, 0, static_cast<unsigned short>(-vv));
+                pwm->SetPwm(15, 0);
+                pwm->SetPwm(14, static_cast<unsigned short>(-v));
+                pwm->SetPwm(13, 0);
+                pwm->SetPwm(12, static_cast<unsigned short>(-v));
             }
             sleep(0.5);
         }
     }
 
-    //pwm->PrintConfig();
-    //cout << endl;
 
 }
 

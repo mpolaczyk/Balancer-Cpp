@@ -3,7 +3,7 @@
 
 #include "I2CDevice.h"
 
-class L3GD20 : public I2CDevice
+class L3GD20 : protected I2CDevice
 {
 
 public:

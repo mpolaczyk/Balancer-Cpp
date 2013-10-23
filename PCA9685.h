@@ -2,19 +2,27 @@
 #define PCA9685_H
 
 #include "I2CDevice.h"
+#include "IPwmController.h"
 
-class PCA9685 : public I2CDevice
+
+class PCA9685 : protected I2CDevice, public IPwmController
 {
 
 public:
     PCA9685(const unsigned char address, const char * deviceFile);
     ~PCA9685();
-    void Init();
-    void PrintConfig();
-    void SetPWMFreq(unsigned short);
-    void SetPWM(unsigned char channel, unsigned short on, unsigned short off);
+    void InitPwm();
+    void SetPwmFreq(unsigned short freq);
+    void SetPwm(unsigned char channel, unsigned char fillFactor);
 
-private:
+protected:
+    void ConfigurePwm(unsigned short minFreq, unsigned short maxFreq, unsigned short maxValue, unsigned char maxChannel);
+
+    unsigned short _minFreq;
+    unsigned short _maxFreq;
+    unsigned short _maxValue;
+    unsigned char _maxChannel;
+
     static const unsigned char _REG_R_SUBADDR1            = 0x02;    // ?
     static const unsigned char _REG_R_SUBADDR2            = 0x03;    // ?
     static const unsigned char _REG_R_SUBADDR3            = 0x04;    // ?
