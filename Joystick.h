@@ -22,7 +22,6 @@ public:
 private:
     int _handle;
     ifstream _stream;
-    char _deviceFile;
 
     static const char _buttons = 10;
     static const char _axises = 6;

@@ -10,15 +10,6 @@ using namespace std;
 
 Joystick::Joystick(const char * deviceFile)
 {
-    // Save values to private variables
-    _deviceFile = *deviceFile;
-
-    // Open device file
-    //_handle = open(deviceFile, O_RDONLY);
-    //if (_handle == -1)
-    //{
-    //    throw posix_error("Failed to open device");
-    //}
     _stream.open(deviceFile, std::ios::in | std::ios::binary);
 
     for(char i = 0; i < _buttons; i++)
@@ -56,7 +47,7 @@ void Joystick::Read()
     // Check Buttons and axises
     if (buffer[6] == _TYPE_AXIS)
     {
-        short value =  (short)((buffer[4] << 8) | buffer[5]);
+        short value =  (short)((buffer[5] << 8) | buffer[4]);
         Axis[buffer[7]] = value;
         return;
     }
@@ -69,13 +60,11 @@ void Joystick::Read()
     else if (buffer[6] == _MODE_CONFIGURATION | _TYPE_AXIS)
     {
         // TODO: Add axis to dictionary
-        cout << "Axis configuration bytes..." << endl;
         return;
     }
     else if (buffer[6] == _MODE_CONFIGURATION | _TYPE_BUTTON)
     {
         // TODO: Add button to dictionary
-        cout << "Button configuration bytes..." << endl;
         return;
     }
 }

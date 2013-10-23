@@ -22,6 +22,34 @@ int getTime()
     return (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
 }
 
+void JoystickEngineDemo()
+{
+    Joystick* joy = new Joystick("/dev/input/js0");
+    PCA9685* pwm = new PCA9685(0x40, "/dev/i2c-1");
+    Engine* engineL = new Engine(pwm);
+    Engine* engineR = new Engine(pwm);
+
+    engineL->Init(15, 14);
+    engineR->Init(13, 12);
+
+    double speedL;
+    double speedR;
+    while(1)
+    {
+        joy->Read();
+
+        speedL = ((double)joy->Axis[1])/32565 * 100;
+        speedR = ((double)joy->Axis[3])/32565 * 100;
+
+        cout << "L: " << speedL << " R: " << speedR << endl << flush;
+
+        engineL->SetSpeedNorm(-speedL); // Minus because of construction (engine rotated)
+        engineR->SetSpeedNorm(speedR);
+
+        usleep(0.001*1000000);
+    }
+}
+
 void JoystickDemo()
 {
     Joystick* joy = new Joystick("/dev/input/js0");
@@ -79,6 +107,7 @@ void EngineDemo()
             usleep(0.001*1000000);
         }
         engineL->Stop();
+        engineR->Stop();
         sleep(2);
     }
 
@@ -156,7 +185,7 @@ void AccDemo()
 
 int main()
 {
-    JoystickDemo();
+    JoystickEngineDemo();
 
     return 0;
 }

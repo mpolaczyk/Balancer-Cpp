@@ -50,7 +50,7 @@ void PCA9685::SetPwmFreq(unsigned short freq)
 void PCA9685::SetPwm(unsigned char channel, double fillFactor)
 {
     if (channel > _maxChannel) { throw posix_error("Channel canot be greater than maximum value."); }
-    if (fillFactor > 100) { throw posix_error("Fill factor [%] must be <= 100 and >= 0."); }
+    if (fillFactor > 100) { fillFactor = 100; }
 
     unsigned short value = static_cast<unsigned short>(((double)_maxValue / 100) * fillFactor);
 
