@@ -1,9 +1,15 @@
 #include <iostream>
 #include <time.h>
 #include <sys/time.h>
+#include <math.h>
 
 #include "L3GD20.h"
 #include "LSM303DLHC.h"
+#include "PCA9685.h"
+
+#define PI 3.14159265
+#define DEG_TO_RAD (PI/180)
+#define RAD_TO_DEG (180/PI)
 
 using namespace std;
 
@@ -12,6 +18,32 @@ int getTime()
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
+}
+
+void PWMDemo()
+{
+    PCA9685 *pwm = new PCA9685(0x40, "/dev/i2c-1");
+    pwm->Init();
+
+
+    pwm->PrintConfig();
+    cout << endl;
+    cout << endl;
+
+    pwm->SetPWMFreq(1000);
+    cout << endl;
+    cout << endl;
+
+    pwm->PrintConfig();
+    cout << endl;
+    cout << endl;
+
+    pwm->SetPWM(0, 0,1024);
+
+
+    //pwm->PrintConfig();
+    //cout << endl;
+
 }
 
 void GyroDemo()
@@ -65,7 +97,7 @@ void AccDemo()
     double x = 0;
     double y = 0;
     double z = 0;
-    double dt = 0.02;
+    double dt = 0.1;
 
     while(1)
     {
@@ -74,6 +106,8 @@ void AccDemo()
         z = acc->Get_CalOutZ();
 
         cout << x << " " << y << " " << z << "\r\n";
+        cout << atan2(z * DEG_TO_RAD, y * DEG_TO_RAD) * RAD_TO_DEG << "\r\n";
+        cout << "\033[F" << "\033[F" << std::flush;
 
         usleep(dt*1000000);
     }
@@ -83,7 +117,7 @@ void AccDemo()
 
 int main()
 {
-    AccDemo();
+    PWMDemo();
 
     return 0;
 }
