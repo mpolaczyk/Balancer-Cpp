@@ -38,8 +38,34 @@ void PWMDemo()
     cout << endl;
     cout << endl;
 
-    pwm->SetPWM(0, 0,1024);
+    double A = 360 * DEG_TO_RAD;
+    double da = 1 * DEG_TO_RAD;
+    double v = 0;
+    double vv = 0;
 
+    while(1)
+    {
+        for(double a = 0; a < A; a += da)
+        {
+            v = sin(a);
+            vv = v * 4095;
+            if(v>0)
+            {
+                pwm->SetPWM(15, 0, static_cast<unsigned short>(vv));
+                pwm->SetPWM(14, 0, 0);
+                pwm->SetPWM(13, 0, static_cast<unsigned short>(vv));
+                pwm->SetPWM(12, 0, 0);
+            }
+            else
+            {
+                pwm->SetPWM(15, 0, 0);
+                pwm->SetPWM(14, 0, static_cast<unsigned short>(-vv));
+                pwm->SetPWM(13, 0, 0);
+                pwm->SetPWM(12, 0, static_cast<unsigned short>(-vv));
+            }
+            sleep(0.5);
+        }
+    }
 
     //pwm->PrintConfig();
     //cout << endl;
