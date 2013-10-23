@@ -3,6 +3,22 @@
 
 #include <iostream>
 
+// Prints binary representation to standard output
+static inline void printBinary(const unsigned char value)
+{
+    for(int i = 7; i>=0;i--)
+    {
+        if(value &(1 << i))
+        {
+            std::cout << "1";
+        }
+        else
+        {
+            std::cout << "0";
+        }
+    }
+}
+
 // Checks if bit on given position is set
 static inline bool checkBit(unsigned char value, unsigned char position)
 {
@@ -89,22 +105,6 @@ static inline int TwosComplementToByte(unsigned char value)
 {
     if (value >= 0 && value <= 127) { return value; }
     else { return value - 256; }
-}
-
-// Prints binary representation to standard output
-static inline void printBinary(const unsigned char value)
-{
-	for(int i = 7; i>=0;i--)
-	{
-		if(value &(1 << i))
-		{
-            std::cout << "1";
-		}
-		else
-		{
-            std::cout << "0";
-		}
-	}
 }
 
 #endif

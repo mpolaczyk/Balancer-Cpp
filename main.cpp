@@ -7,6 +7,7 @@
 #include "LSM303DLHC.h"
 #include "PCA9685.h"
 #include "Engine.h"
+#include "Joystick.h"
 
 #define PI 3.14159265
 #define DEG_TO_RAD (PI/180)
@@ -21,7 +22,41 @@ int getTime()
     return (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000;
 }
 
-void PWMDemo()
+void JoystickDemo()
+{
+    Joystick* joy = new Joystick("/dev/input/js0");
+
+    while(1)
+    {
+        joy->Read();
+
+        cout << "Buttons: |";
+        cout << joy->Button[0] << "|";
+        cout << joy->Button[1] << "|";
+        cout << joy->Button[2] << "|";
+        cout << joy->Button[3] << "|";
+        cout << joy->Button[4] << "|";
+        cout << joy->Button[5] << "|";
+        cout << joy->Button[6] << "|";
+        cout << joy->Button[7] << "|";
+        cout << joy->Button[8] << "|";
+        cout << joy->Button[9] << "|";
+        cout << endl << flush;
+
+        cout << "Axises: |";
+        cout << joy->Axis[0] << "|";
+        cout << joy->Axis[1] << "|";
+        cout << joy->Axis[2] << "|";
+        cout << joy->Axis[3] << "|";
+        cout << joy->Axis[4] << "|";
+        cout << joy->Axis[5] << "|";
+        cout << endl << flush;
+
+        usleep(0.001*1000000);
+    }
+}
+
+void EngineDemo()
 {
     PCA9685* pwm = new PCA9685(0x40, "/dev/i2c-1");
     Engine* engineL = new Engine(pwm);
@@ -121,7 +156,7 @@ void AccDemo()
 
 int main()
 {
-    PWMDemo();
+    JoystickDemo();
 
     return 0;
 }

@@ -8,7 +8,8 @@ SOURCES += main.cpp \
     L3GD20.cpp \
     LSM303DLHC.cpp \
     PCA9685.cpp \
-    Engine.cpp
+    Engine.cpp \
+    Joystick.cpp
 
 HEADERS += \
     bitops.h \
@@ -18,5 +19,6 @@ HEADERS += \
     LSM303DLHC.h \
     PCA9685.h \
     Engine.h \
-    IPwmController.h
+    IPwmController.h \
+    Joystick.h
 
