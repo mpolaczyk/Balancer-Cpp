@@ -6,7 +6,7 @@ class IPwmController
 
 public:
     void virtual SetPwmFreq(unsigned short freq) {}
-    void virtual SetPwm(unsigned char channel, unsigned char fillFactor) {}
+    void virtual SetPwm(unsigned char channel, double fillFactor) {}
     void virtual InitPwm() {}
 
 };

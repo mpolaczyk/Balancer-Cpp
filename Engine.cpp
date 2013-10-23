@@ -29,17 +29,17 @@ void Engine::Init(unsigned char fwPwmChannel, unsigned char rwPwmChannel)
     Stop();
 }
 
-void Engine::SetSpeedNorm(char percentValue)
+void Engine::SetSpeedNorm(double percentValue)
 {
     if(percentValue > 0)
     {
-        _pwmController->SetPwm(_fwPwmChannel, 0);
-        _pwmController->SetPwm(_rwPwmChannel, (unsigned char)percentValue);
+        _pwmController->SetPwm(_fwPwmChannel, percentValue);
+        _pwmController->SetPwm(_rwPwmChannel, 0);
     }
     else
     {
-        _pwmController->SetPwm(_fwPwmChannel, (unsigned char)(-percentValue));
-        _pwmController->SetPwm(_rwPwmChannel, 0);
+        _pwmController->SetPwm(_fwPwmChannel, 0);
+        _pwmController->SetPwm(_rwPwmChannel, -percentValue);
     }
 }
 

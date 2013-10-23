@@ -47,14 +47,12 @@ void PCA9685::SetPwmFreq(unsigned short freq)
     WriteToRegister(_REG_RW_MODE, oldMode | 0x80);
 }
 
-void PCA9685::SetPwm(unsigned char channel, unsigned char fillFactor)
+void PCA9685::SetPwm(unsigned char channel, double fillFactor)
 {
     if (channel > _maxChannel) { throw posix_error("Channel canot be greater than maximum value."); }
     if (fillFactor > 100) { throw posix_error("Fill factor [%] must be <= 100 and >= 0."); }
 
-    unsigned short value = static_cast<unsigned short>(((double)_maxValue / 100) * (double)fillFactor);
-
-    std::cout << value << endl << flush;
+    unsigned short value = static_cast<unsigned short>(((double)_maxValue / 100) * fillFactor);
 
     WriteToRegister(_REG_RW_CH0_L_ON + 4 * channel, 0);
     WriteToRegister(_REG_RW_CH0_H_ON + 4 * channel, 0);

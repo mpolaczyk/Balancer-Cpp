@@ -5,12 +5,14 @@
 
 class Engine
 {
+
 public:
     Engine(IPwmController* pwmController);
     ~Engine();
     void Init(unsigned char fwPwmChannel, unsigned char rwPwmChannel);
-    void SetSpeedNorm(char percentValue);
+    void SetSpeedNorm(double percentValue);
     void Stop();
+
 private:
     IPwmController* _pwmController;
     unsigned char _fwPwmChannel;

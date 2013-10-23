@@ -6,6 +6,7 @@
 #include "L3GD20.h"
 #include "LSM303DLHC.h"
 #include "PCA9685.h"
+#include "Engine.h"
 
 #define PI 3.14159265
 #define DEG_TO_RAD (PI/180)
@@ -22,35 +23,28 @@ int getTime()
 
 void PWMDemo()
 {
-    PCA9685 *pwm = new PCA9685(0x40, "/dev/i2c-1");
-    pwm->InitPwm();
-    pwm->SetPwmFreq(1000);
+    PCA9685* pwm = new PCA9685(0x40, "/dev/i2c-1");
+    Engine* engineL = new Engine(pwm);
+    Engine* engineR = new Engine(pwm);
 
-    double A = 360 * DEG_TO_RAD;
-    double da = 1 * DEG_TO_RAD;
-    double v = 0;
+    engineL->Init(15, 14);
+    engineR->Init(13, 12);
+
+    double alphaMax = 360 * DEG_TO_RAD;
+    double dalpha = 1 * DEG_TO_RAD;
 
     while(1)
     {
-        for(double a = 0; a < A; a += da)
+        for (double alpha = 0; alpha < alphaMax; alpha += dalpha)
         {
-            v = 100*sin(a);
-            if(v>0)
-            {
-                pwm->SetPwm(15, static_cast<unsigned short>(v));
-                pwm->SetPwm(14, 0);
-                pwm->SetPwm(13, static_cast<unsigned short>(v));
-                pwm->SetPwm(12, 0);
-            }
-            else
-            {
-                pwm->SetPwm(15, 0);
-                pwm->SetPwm(14, static_cast<unsigned short>(-v));
-                pwm->SetPwm(13, 0);
-                pwm->SetPwm(12, static_cast<unsigned short>(-v));
-            }
-            sleep(0.5);
+            engineL->SetSpeedNorm(static_cast<double>(100*sin(alpha)));
+
+            engineR->SetSpeedNorm(static_cast<double>(100*sin(alpha)));
+
+            usleep(0.001*1000000);
         }
+        engineL->Stop();
+        sleep(2);
     }
 
 

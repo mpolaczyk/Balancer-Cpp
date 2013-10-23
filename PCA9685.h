@@ -13,9 +13,9 @@ public:
     ~PCA9685();
     void InitPwm();
     void SetPwmFreq(unsigned short freq);
-    void SetPwm(unsigned char channel, unsigned char fillFactor);
+    void SetPwm(unsigned char channel, double fillFactor);
 
-protected:
+private:
     void ConfigurePwm(unsigned short minFreq, unsigned short maxFreq, unsigned short maxValue, unsigned char maxChannel);
 
     unsigned short _minFreq;
